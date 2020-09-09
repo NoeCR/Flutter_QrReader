@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qrreaderapp/src/models/scan_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBService {
@@ -38,4 +39,25 @@ class DBService {
       },
     );
   }
+
+  // CREATE - Crear registros //////////////////////////////////////////////////
+  newScanRaw(ScanModel newScan) async {
+    final db = await database;
+
+    final res = await db.rawInsert("INSERT INTO Scans (id, type, value) "
+        "VALUES (${newScan.id}, '${newScan.type}', '${newScan.value}')");
+
+    return res;
+  }
+
+  newScan(ScanModel newScan) async {
+    final db = await database;
+
+    final res = await db.insert('Scans', newScan.toJson());
+
+    return res;
+  }
+
+  // READ - Buscar registros ///////////////////////////////////////////////////
+
 }

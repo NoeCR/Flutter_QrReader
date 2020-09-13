@@ -72,40 +72,39 @@ class _HomePageState extends State<HomePage> {
   FloatingActionButton _createFloatingAcctionButton() {
     return FloatingActionButton(
       child: Icon(Icons.filter_center_focus),
-      onPressed: _scanQR,
+      onPressed: () => _scanQR(context),
       backgroundColor: Theme.of(context).primaryColor,
     );
   }
 
-  void _scanQR() async {
+  void _scanQR(BuildContext context) async {
     // geo:40.64092015736605,-74.20506849726566
     // https://fernando-herrera.com/#/home
     // dynamic futureString = '';
-    dynamic futureString = 'https://fernando-herrera.com/#/home';
+    ScanResult futureString;
 
-    // try {
-    //   futureString = await BarcodeScanner.scan();
-    // } catch (ex) {
-    //   futureString = ex.toString();
-    // }
+    try {
+      futureString = await BarcodeScanner.scan();
+    } catch (ex) {
+      futureString.rawContent = ex.toString();
+    }
 
     if (futureString != null) {
-      final scan = ScanModel(value: futureString);
+      print(futureString);
+      print(futureString.rawContent);
+      final scan = ScanModel(value: futureString.rawContent);
       scansBloc.addScan(scan);
 
-      final scan2 =
-          ScanModel(value: 'geo:40.64092015736605,-74.20506849726566');
-      scansBloc.addScan(scan2);
       // Esta forma no notifica cuando se ha añadido un nuevo elemento
       // Para ello usaremos el patrón BLoC, así mantendremos toda la aplicación sincronizada
       // DBService.db.newScan(scan);
 
       if (Platform.isIOS) {
         Future.delayed(Duration(milliseconds: 750), () {
-          utils.launchScan(scan);
+          utils.launchScan(context, scan);
         });
       } else {
-        utils.launchScan(scan);
+        utils.launchScan(context, scan);
       }
     }
   }

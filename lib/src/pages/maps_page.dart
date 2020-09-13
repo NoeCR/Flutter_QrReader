@@ -6,10 +6,11 @@ import 'package:qrreaderapp/src/utils/utils.dart' as utils;
 class MapsPage extends StatelessWidget {
   static final pageName = 'maps';
 
+  final scansBloc = new ScansBloc();
+
   @override
   Widget build(BuildContext context) {
-    final scansBloc = new ScansBloc();
-
+    scansBloc.getScans();
     return StreamBuilder<List<ScanModel>>(
       stream: scansBloc.scansStream,
       builder: (BuildContext context, AsyncSnapshot<List<ScanModel>> snapshot) {
@@ -33,7 +34,7 @@ class MapsPage extends StatelessWidget {
                 onDismissed: (direction) =>
                     scansBloc.deleteScan(scans[index].id),
                 child: ListTile(
-                  onTap: () => utils.launchScan(scans[index]),
+                  onTap: () => utils.launchScan(context, scans[index]),
                   leading: Icon(Icons.cloud_queue,
                       color: Theme.of(context).primaryColor),
                   title: Text(scans[index].value),

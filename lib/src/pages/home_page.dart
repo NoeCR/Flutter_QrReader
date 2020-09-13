@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:barcode_scan/barcode_scan.dart';
+import 'package:qrreaderapp/src/bloc/scans_bloc.dart';
+import 'package:qrreaderapp/src/models/scan_model.dart';
+
 import 'package:qrreaderapp/src/pages/directions_page.dart';
 import 'package:qrreaderapp/src/pages/maps_page.dart';
-
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:qrreaderapp/src/utils/utils.dart' as utils;
 
 class HomePage extends StatefulWidget {
   static final pageName = 'home';
@@ -12,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final scansBloc = new ScansBloc();
   int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -21,7 +27,11 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: Icon(Icons.delete_forever),
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                scansBloc.deleteScansAll();
+              });
+            },
           )
         ],
       ),
@@ -70,7 +80,8 @@ class _HomePageState extends State<HomePage> {
   void _scanQR() async {
     // geo:40.64092015736605,-74.20506849726566
     // https://fernando-herrera.com/#/home
-    dynamic futureString = '';
+    // dynamic futureString = '';
+    dynamic futureString = 'https://fernando-herrera.com/#/home';
 
     // try {
     //   futureString = await BarcodeScanner.scan();
@@ -78,8 +89,24 @@ class _HomePageState extends State<HomePage> {
     //   futureString = ex.toString();
     // }
 
-    // if (futureString != null) {
-    //   print('Future String: ${futureString.rawContent}');
-    // }
+    if (futureString != null) {
+      final scan = ScanModel(value: futureString);
+      scansBloc.addScan(scan);
+
+      final scan2 =
+          ScanModel(value: 'geo:40.64092015736605,-74.20506849726566');
+      scansBloc.addScan(scan2);
+      // Esta forma no notifica cuando se ha añadido un nuevo elemento
+      // Para ello usaremos el patrón BLoC, así mantendremos toda la aplicación sincronizada
+      // DBService.db.newScan(scan);
+
+      if (Platform.isIOS) {
+        Future.delayed(Duration(milliseconds: 750), () {
+          utils.launchScan(scan);
+        });
+      } else {
+        utils.launchScan(scan);
+      }
+    }
   }
 }
